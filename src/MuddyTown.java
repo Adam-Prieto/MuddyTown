@@ -13,36 +13,57 @@ public class MuddyTown
     public static void main(String[] args) throws FileNotFoundException
     {
         // Variables
-        String path = "C:\\Users\\adamp\\MSU Denver\\CS4050\\Projects" +
-                "\\Muddy Town\\src\\MiniTown copy.txt";
-        Scanner inputFile = new Scanner(new File(path));
+        String windowsPath = "C:\\Users\\adamp\\MSU Denver\\CS4050\\Projects" +
+                             "\\Muddy Town\\src\\MiniTown copy.txt";
+        String macPath = "/Users/adamprieto/Education/MSU Denver/CS 4050/" +
+                         "All Programs/Muddy Town/MuddyTown/src/" +
+                         "MiniTown copy.txt";
+        Scanner inputFile = new Scanner(new File(macPath));
         Random number = new Random();
         int random = number.nextInt(5) + 1;
+        ArrayList<String> nodeNames = new ArrayList<>();
+        String[] strArray = null;
 
 
         // Get and process file contents
         Process t = new Process();
-        ArrayList<String>myList = t.myStrings(path);
+        ArrayList<String> edgeNames = t.myStrings(macPath);
 
         // Print original list
         System.out.println("Original list:");
-        printList(myList);
+        printList(edgeNames);
 
         // Sort list
-        mergeSort(myList);
+        mergeSort(edgeNames);
 
         // Print sorted list
         System.out.println("Sorted list:");
-        printList(myList);
+        printList(edgeNames);
+
+        // Gets node names from edge names
+        for (String edgeName : edgeNames)
+        {
+            strArray = edgeName.split(",");
+            for (String s : strArray)
+            {
+                String temp1 = s.replaceAll("\"", "");
+                if (temp1.length() > 1 && !(nodeNames.contains(temp1)))
+                {
+                    nodeNames.add(temp1);
+                } // End for
+            } // End for
+        } // End for
+
+        System.out.println(nodeNames);
 
         // Print random numbers
-        System.out.println("Initial: " + random);
-        for (int i = 0; i < 10; i++)
-        {
-            int j = getLcm(random) % 721;
-            System.out.println("Random Number: " + j);
-            random = j;
-        } // End for
+//        System.out.println("Initial: " + random);
+//        for (int i = 0; i < 20; i++)
+//        {
+//            int j = getLcm(random) % 721;
+//            System.out.println("Random Number: " + j);
+//            random = j;
+//        } // End for
 
 
         // Close file
@@ -55,28 +76,28 @@ public class MuddyTown
         return (input * A + (B % M));
     } // End getLcm
 
-    public static void bubbleSort(ArrayList<String> myList)
+    public static void bubbleSort(ArrayList<String> edgeNames)
     {
         String temp;
-        for (int i = 0; i < myList.size(); i++)
+        for (int i = 0; i < edgeNames.size(); i++)
         {
-            for (int j = i + 1; j < myList.size(); j++)
+            for (int j = i + 1; j < edgeNames.size(); j++)
             {
                 // Compare strings
-                if (myList.get(i).compareTo(myList.get(j)) > 0)
+                if (edgeNames.get(i).compareTo(edgeNames.get(j)) > 0)
                 {
                     // Swap
-                    temp = myList.get(i);
-                    myList.set(i, myList.get(j));
-                    myList.set(j, temp);
+                    temp = edgeNames.get(i);
+                    edgeNames.set(i, edgeNames.get(j));
+                    edgeNames.set(j, temp);
                 } // End if
             } // End for
         } // End for
     }  // End bubbleSort
 
-    public static void mergeSort(ArrayList<String> myList)
+    public static void mergeSort(ArrayList<String> edgeNames)
     {
-        int inputLength = myList.size();
+        int inputLength = edgeNames.size();
 
         if (inputLength < 2)
         {
@@ -89,19 +110,19 @@ public class MuddyTown
 
         for (int i = 0; i < midIndex; i++)
         {
-            leftHalf.add(myList.get(i));
+            leftHalf.add(edgeNames.get(i));
         } // End for
         for (int i = midIndex; i <= inputLength; i++)
         {
-            if (!leftHalf.contains(myList.get(i - midIndex)))
+            if (!leftHalf.contains(edgeNames.get(i - midIndex)))
             {
-                rightHalf.add(myList.get(i - midIndex));
+                rightHalf.add(edgeNames.get(i - midIndex));
             } // End if
         } // End for
         mergeSort(leftHalf);
         mergeSort(rightHalf);
 
-        merge(myList, leftHalf, rightHalf);
+        merge(edgeNames, leftHalf, rightHalf);
     } // End mergeSort
 
     private static void merge(ArrayList<String> inputArray,
@@ -150,9 +171,9 @@ public class MuddyTown
         } // End while
     } // End merge
 
-    public static void printList(ArrayList<String> myList)
+    public static void printList(ArrayList<String> edgeNames)
     {
-        for (String s : myList)
+        for (String s : edgeNames)
         {
             System.out.println(s);
         } // End for
