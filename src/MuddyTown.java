@@ -1,3 +1,5 @@
+//*****************************************************************************
+
 /*
  * File notes:
  * File is able to read information from a file and add selected data to an
@@ -14,87 +16,155 @@ public class MuddyTown
     {
         // Variables
         String windowsPath = "C:\\Users\\adamp\\MSU Denver\\CS4050\\Projects" +
-                             "\\Muddy Town\\src\\MiniTown copy.txt";
+                "\\Muddy Town\\src\\MiniTown copy.txt";
         String macPath = "/Users/adamprieto/Education/MSU Denver/CS 4050/" +
-                         "All Programs/Muddy Town/MuddyTown/src/" +
-                         "MiniTown copy.txt";
-        Scanner inputFile = new Scanner(new File(macPath));
+                "All Programs/Muddy Town/MuddyTown/src/" + "MiniTown copy.txt";
+        Scanner inputFile = new Scanner(new File(windowsPath));
         Random number = new Random();
         int random = number.nextInt(5) + 1;
-        ArrayList<String> nodeNames = new ArrayList<>();
-        String[] strArray = null;
+        ArrayList<String> nodeNames;
+        ArrayList<String> edgeNames;
+        ArrayList<String> finalEdges = new ArrayList<>();
 
 
-        // Get and process file contents
+        // Get edge and node names from the file
         Process t = new Process();
-        ArrayList<String> edgeNames = t.myStrings(macPath);
+        edgeNames = t.getEdgeNames(windowsPath);
+        nodeNames = t.getNodeNames(edgeNames);
 
-        // Print original list
+
+        // Print original data
         System.out.println("Original list:");
         printList(edgeNames);
+        System.out.println("Node Names:");
+        printList(nodeNames);
+        System.out.println("Initial list total weight: " +
+                            getTotalWeight(edgeNames) + "\n");
+
 
         // Sort list
         mergeSort(edgeNames);
 
-        // Print sorted list
-        System.out.println("Sorted list:");
+
+        // Print sorted edges
+        System.out.println("Sorted edges:");
         printList(edgeNames);
 
-        // Gets node names from edge names
-        for (String edgeName : edgeNames)
-        {
-            strArray = edgeName.split(",");
-            for (String s : strArray)
-            {
-                String temp1 = s.replaceAll("\"", "");
-                if (temp1.length() > 1 && !(nodeNames.contains(temp1)))
-                {
-                    nodeNames.add(temp1);
-                } // End for
-            } // End for
-        } // End for
+        // Scramble nodes
+        Collections.shuffle(nodeNames);
+        System.out.println("Shuffled nodes: ");
+        printList(nodeNames);
 
-        System.out.println(nodeNames);
 
         // Print random numbers
 //        System.out.println("Initial: " + random);
-//        for (int i = 0; i < 20; i++)
-//        {
-//            int j = getLcm(random) % 721;
-//            System.out.println("Random Number: " + j);
-//            random = j;
-//        } // End for
+//        getMultipleRandomNumbers(random, 8);
+
+        // Add node names to Binary Tree
+        BinaryTree theTree = new BinaryTree();
+        for (String nodeName : nodeNames)
+        {
+            theTree.addNode(nodeName);
+        } // End for
+
+
+        // Todo: add edges to a file, checking to make sure that the
+        //  corresponding nodes aren't both already marked.
+
+        for (String inputLine : edgeNames)
+        {
+            String[] strArray = inputLine.split(",");
+
+            for (int j = 0; j < strArray.length; j++)
+            {
+                String temp = strArray[j].replaceAll("\"", "");
+                strArray[j] = temp;
+            } // End for
+
+            // Check to make sure both nodes aren't already marked.
+            if (!(theTree.findNode(strArray[1]).isMarked) || !(theTree.findNode(
+                    strArray[2]).isMarked))
+            {
+                theTree.findNode(strArray[1]).isMarked = true;
+                theTree.findNode(strArray[2]).isMarked = true;
+                finalEdges.add(inputLine);
+            } // End if
+
+            if ((finalEdges.size() == (nodeNames.size()) - 1)) break;
+        } // End for
+
+        System.out.println("Final list: ");
+        printList(finalEdges);
+        System.out.println("Final list total weight: " +
+                getTotalWeight(finalEdges));
 
 
         // Close file
         inputFile.close();
     } // End main
 
+    //***********************************************************************
+
+    /**
+     * @description - enter an initial guess and a loop parameter to get the
+     *                specified number of random numbers using LCM
+     *
+     * @param random - a random number to begin the calculations
+     * @param totalRuns - the total number of runs or integers to be printed
+     *
+     * @return - void
+     */
+    private static void getMultipleRandomNumbers(int random, int totalRuns)
+    {
+        for (int i = 0; i < totalRuns; i++)
+        {
+            int j = getLcm(random) % 721;
+            System.out.println(j);
+            random = j;
+        } // End for
+    } // End getMultipleRandomNumbers
+
+    //***********************************************************************
+
+    /**
+     * @description  - enter an array list of edges to get the total cost from
+     *                 those edges.
+     * @param edgeNames - the initial list of edges.
+     * @return - the total weight of the list
+     */
+    public static int getTotalWeight(ArrayList<String> edgeNames)
+    {
+        int totalWeight = 0;
+        for (String edgeName : edgeNames)
+        {
+            totalWeight += edgeName.charAt(0) - '0';
+        } // End for
+
+        return totalWeight;
+    } // End getTotalWeight
+
+    //***********************************************************************
+
+    /**
+     * @description - enter a number and get the LCM value back.
+     *
+     * @param input - an initial guess.
+     * @return - the corresponding LCM value post-calculation.
+     */
     public static int getLcm(int input)
     {
         int A = 5, B = 3, M = 7;
         return (input * A + (B % M));
     } // End getLcm
 
-    public static void bubbleSort(ArrayList<String> edgeNames)
-    {
-        String temp;
-        for (int i = 0; i < edgeNames.size(); i++)
-        {
-            for (int j = i + 1; j < edgeNames.size(); j++)
-            {
-                // Compare strings
-                if (edgeNames.get(i).compareTo(edgeNames.get(j)) > 0)
-                {
-                    // Swap
-                    temp = edgeNames.get(i);
-                    edgeNames.set(i, edgeNames.get(j));
-                    edgeNames.set(j, temp);
-                } // End if
-            } // End for
-        } // End for
-    }  // End bubbleSort
+    //***********************************************************************
 
+    /**
+     * @description - perform merge sort on array list of edges (first part
+     *                of Kruskal's algorithm and part 1 of 2 for whole of
+     *                merge sort).
+     * @param edgeNames - list of edges to be sorted.
+     */
     public static void mergeSort(ArrayList<String> edgeNames)
     {
         int inputLength = edgeNames.size();
@@ -125,6 +195,13 @@ public class MuddyTown
         merge(edgeNames, leftHalf, rightHalf);
     } // End mergeSort
 
+    //***********************************************************************
+
+    /**
+     * @param inputArray - the initial array to be merged.
+     * @param leftHalf - left half of the "to be sorted" array.
+     * @param rightHalf - right "".
+     */
     private static void merge(ArrayList<String> inputArray,
                               ArrayList<String> leftHalf,
                               ArrayList<String> rightHalf)
@@ -171,6 +248,13 @@ public class MuddyTown
         } // End while
     } // End merge
 
+    //***********************************************************************
+
+    /**
+     * @description - this method takes in an array list of strings and outputs
+     *                the respective entries from that list on a new line.
+     * @param edgeNames - the array list to be printed
+     */
     public static void printList(ArrayList<String> edgeNames)
     {
         for (String s : edgeNames)

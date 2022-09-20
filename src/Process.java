@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Process
 {
-    public ArrayList<String> myStrings(String path) throws FileNotFoundException
+    public ArrayList<String> getEdgeNames(String path) throws FileNotFoundException
     {
         ArrayList<String> myList = new ArrayList<>();
         Scanner inputFile = new Scanner(new File(path));
@@ -22,5 +22,26 @@ public class Process
             } // End if
         } // End while
         return (myList);
-    } // End myStrings
+    } // End getEdgeNames
+
+    public ArrayList<String> getNodeNames(ArrayList<String> edgeNames)
+    {
+        String[] strArray;
+        ArrayList<String> nodeNames = new ArrayList<>();
+
+        for (String edgeName : edgeNames)
+        {
+            strArray = edgeName.split(",");
+            for (String s : strArray)
+            {
+                String temp1 = s.replaceAll("\"", "");
+                if (temp1.length() > 1 && !(nodeNames.contains(temp1)))
+                {
+                    nodeNames.add(temp1);
+                } // End if
+            } // End for
+        } // End for
+
+        return (nodeNames);
+    } // End getNodeNames
 } // End Process class
