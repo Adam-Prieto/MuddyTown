@@ -14,9 +14,12 @@ public class Process
         {
             inputLine = inputFile.nextLine();
 
-            // If the first char is a size, then add it to the array list
-            int test = inputLine.charAt(0) - '0';
-            if (test < 10 && test > 0)
+            // If the first line is non-null and the first char is a size, add
+            // it to the array list
+            if ((inputLine.length() > 0) &&
+                inputLine.charAt(0) - '0' < 10 &&
+                inputLine.charAt(0) - '0' > 0 &&
+                inputLine.contains(","))
             {
                 myList.add(inputLine);
             } // End if
@@ -35,7 +38,7 @@ public class Process
             for (String s : strArray)
             {
                 String temp1 = s.replaceAll("\"", "");
-                if (temp1.length() > 1 && !(nodeNames.contains(temp1)))
+                if (temp1.length() > 3 && !(nodeNames.contains(temp1)))
                 {
                     nodeNames.add(temp1);
                 } // End if

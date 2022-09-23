@@ -61,6 +61,23 @@ public class BinaryTree
         } // End if
     } // End inOrderTraversal
 
+    public boolean areAllNodesMarked(Node focusPointNode)
+    {
+        if (focusPointNode != null)
+        {
+            areAllNodesMarked(focusPointNode.leftChild);
+
+            if(!focusPointNode.isMarked)
+            {
+                return false;
+            } // End if
+
+            areAllNodesMarked(focusPointNode.rightChild);
+
+        } // End if
+        return true;
+    } // End areAllNodesMarked
+
     public Node findNode(String address)
     {
         Node focusPointNode = root;

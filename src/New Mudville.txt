@@ -1,0 +1,8 @@
+"New Mudville"
+
+42,"1020 Finicky Drive","22 32nd Avenue"
+20,"555 FDR Drive","22 32nd Avenue"
+16,"North Capitol","555 FDR Drive"
+4,"West Capitol","North Capitol"
+36,"West Capitol","1020 Finicky Drive"
+40,"North Capitol","22 32nd Avenue"
