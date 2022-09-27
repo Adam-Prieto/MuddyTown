@@ -1,9 +1,18 @@
 //*****************************************************************************
 
 /*
- * File notes:
- * File is able to read information from a file and add selected data to an
- * Array List variable.
+ * Students: Adam Prieto, Bishnu Bhusal, Brandon DeRosier
+ * Professor: Dr. Dody Paul
+ * Class: CS 4050 - Algorithm Analysis
+ * Date: 27 September 2022
+ *
+ * Description: This program is an implementation of Kruskal's algorithm — we
+ *              read in information from a file (preferable csv), determine
+ *              edge relevancy, sort the edges, get nodes from the edges,
+ *              sort the edges, and then determine whether the edges belong
+ *              in a final array list before outputting the final result to
+ *              the console and an external file for future analysis. This
+ *              was a pain to write.
  * */
 
 import java.io.*;
@@ -63,9 +72,6 @@ public class MuddyTown
         System.out.println("Sorted edges:");
         printList(edgeNames);
 
-        // Print random numbers
-//        System.out.println("Initial: " + random);
-//        getMultipleRandomNumbers(random, 8);
 
         // Scramble and add node names to Binary Tree
         Collections.shuffle(nodeNames);
@@ -74,12 +80,6 @@ public class MuddyTown
         {
             theTree.addNode(nodeName);
         } // End for
-
-        // Create and initialize a graph variable with all node names
-        Graph g1 = new Graph(nodeNames, edgeNames);
-        System.out.println(g1.adjVertices);
-
-
 
         // Todod: add edges to a final array list, performing periodic checks
         //  along the way (works for muddy town and new mudville).
@@ -94,31 +94,120 @@ public class MuddyTown
                 strArray[j] = temp;
             } // End for
 
+            Node n1 = theTree.findNode(strArray[1]);
+            Node n2 = theTree.findNode(strArray[2]);
+
             // If either of the two nodes are unmarked, add the edge.
-            if (!(theTree.findNode(strArray[1]).isMarked) ||
-                !(theTree.findNode(strArray[2]).isMarked))
+            if (!(n1.isMarked) || !(n2.isMarked))
             {
-                theTree.findNode(strArray[1]).isMarked = true;
-                theTree.findNode(strArray[2]).isMarked = true;
+                n1.isMarked = true;
+                n2.isMarked = true;
                 finalEdges.add(inputLine);
+                if ((finalEdges.size() == (nodeNames.size()) - 1)) break;
+                continue;
             } // End if
 
-            // Todo: If both edges are marked, see if the edge makes a cycle.
-            //  If not, add the edge to the final list; otherwise, discard.
-            if(theTree.findNode(strArray[1]).isMarked &&
-               theTree.findNode(strArray[2]).isMarked)
+
+            // Todod: If both nodes are marked, see if the edge makes a cyclic
+            //  graph. If not, add the edge to the final list; otherwise,
+            //  discard.
+            else
             {
+                // Create variables
+                Graph g1 = new Graph(edgeNames.size());
+                ArrayList<String> currentEdges = new ArrayList<>(finalEdges);
+                ArrayList<String> connections = new ArrayList<>();
 
-            } // End if
+                // Initialize locationToInt and fill it w/ relevant data
+                HashMap<String, Integer> locationToInt = new HashMap<>();
+                for (int i = 0; i < nodeNames.size(); i++)
+                {
+
+                    String s4 = nodeNames.get(i);
+                    if ((s4.contains(" ")))
+                    {
+                        s4 = s4.replaceAll(" ", "");
+                    } // End if
+
+                    locationToInt.put(s4, i);
+                } // End for
+
+                // Get connections "<Node Name1> <Node Name2>"
+                for (int i = 0; i < currentEdges.size(); i++)
+                {
+                    StringBuilder s1 = new StringBuilder(currentEdges.get(i));
+
+                    // Delete unnecessary stuff
+                    deleteEdgeWeight(s1);
+                    deleteCommas(s1);
+                    deleteQuotes(s1);
+                    s1.replace(0, 2, "");
+                    connections.add(s1.toString());
+                } // End for
+
+                for (int h = 0; h < connections.size(); h++)
+                {
+                    String[] temp = connections.get(h).split(" {2}");
+
+                    // Format each entry from temp array.
+                    for (int i = 0; i < temp.length; i++)
+                    {
+                        StringBuilder s1 = new StringBuilder(temp[i]);
+
+                        // Remove non-letters
+                        for (int j = 0; j < s1.length(); j++)
+                        {
+                            if (!isLetter(s1.charAt(j)) && isLetter(s1.charAt(j)))
+                            {
+                                s1.replace(j, j + 1, "");
+                            } // End if
+                        } // End for
+
+                        // Delete everything after the comma
+                        if (doesStringContain(String.valueOf(s1), ','))
+                        {
+                            int g = findInStr(String.valueOf(s1), ',');
+                            s1.delete(g, s1.length());
+                        } // End if
+
+                        // Formatting
+                        String s2 = String.valueOf(s1).replaceAll("]", "");
+                        s2 = s2.replace("[", "");
+                        temp[i] = s2;
+                    } // End for
+
+
+                    if (temp[0] != null && temp[1] != null)
+                    {
+                        String s1 = temp[0].replaceAll("\\s", "");
+                        String s2 = temp[1].replaceAll("\\s", "");
+                        int one = Integer.parseInt(String.valueOf(locationToInt.get(s1)));
+                        int two = Integer.parseInt(String.valueOf(locationToInt.get(s2)));
+
+                        g1.addEdge(one, two);
+                    } // End if
+                } // End outer for
+
+                if (g1.isCyclic())
+                {
+                    n1.isMarked = true;
+                    n2.isMarked = true;
+                    continue;
+                } // End if
+                else
+                {
+                    finalEdges.add(inputLine);
+                } // End else
+            } // End else
 
             if ((finalEdges.size() == (nodeNames.size()) - 1)) break;
         } // End for
 
         // Verify necessary edges to construct MST
-        if(finalEdges.size() != nodeNames.size()-1)
+        if (finalEdges.size() != nodeNames.size() - 1)
         {
             // Too few edges
-            if(finalEdges.size() < nodeNames.size()-1)
+            if (finalEdges.size() < nodeNames.size() - 1)
             {
                 System.out.println("Insufficient number of edges to\n" +
                                    "construct a minimum spanning tree.\n" +
@@ -162,12 +251,69 @@ public class MuddyTown
     //***********************************************************************
 
     /**
+     * @param s1 - a string builder w/ quotes.
+     * @description - this method deletes the aforementioned quotes from a
+     * string builder object.
+     */
+    public static void deleteQuotes(StringBuilder s1)
+    {
+        for (int j = 0; j < s1.length(); j++)
+        {
+            if (s1.charAt(j) == '\"')
+            {
+                s1.replace(j, j + 1, " ");
+                j--;
+            } // End if
+        } // End for
+    } // End deleteQuotes
+
+    //***********************************************************************
+
+    /**
+     * @param s1 - a string builder w/ commas.
+     * @description - this method deletes the aforementioned commas from a
+     * string builder object.
+     */
+    public static void deleteCommas(StringBuilder s1)
+    {
+        for (int j = 0; j < s1.length(); j++)
+        {
+            if (s1.charAt(j) == ',')
+            {
+                s1.replace(j, j + 1, " ");
+                j--;
+            } // End if
+        } // End for
+    } // End deleteCommas
+
+    //***********************************************************************
+
+    /**
+     * @param s1 - a string that represents an edge between two nodes.
+     * @description - this method deletes the numeric part (weight) of an
+     * edge.
+     */
+    public static void deleteEdgeWeight(StringBuilder s1)
+    {
+        for (int j = 0; j < findInStr(String.valueOf(s1), ','); j++)
+        {
+            if (hasInt(s1.charAt(j)))
+            {
+                s1.delete(j, j + 1);
+                j--;
+            } // End if
+        } // End for
+    } // End deleteEdgeWeight
+
+    //***********************************************************************
+
+    /**
      * @param random    - a random number to begin the calculations
      * @param totalRuns - the total number of runs or integers to be printed
      * @description - enter an initial guess and a loop parameter to get the
      * specified number of random numbers using LCM
      */
-    private static void getMultipleRandomNumbers(int random, int totalRuns)
+    public static void getMultipleRandomNumbers(int random, int totalRuns)
     {
         for (int i = 0; i < totalRuns; i++)
         {
@@ -266,9 +412,9 @@ public class MuddyTown
      * @param leftHalf   - left half of the "to be sorted" array.
      * @param rightHalf  - right "".
      */
-    private static void merge(ArrayList<String> inputArray,
-                              ArrayList<String> leftHalf,
-                              ArrayList<String> rightHalf)
+    public static void merge(ArrayList<String> inputArray,
+                             ArrayList<String> leftHalf,
+                             ArrayList<String> rightHalf)
     {
         int leftSize = leftHalf.size();
         int rightSize = rightHalf.size();
@@ -335,4 +481,166 @@ public class MuddyTown
         } // End for
         System.out.println();
     } // End printList
+
+    //***********************************************************************
+
+    /**
+     * @param input - "Does this particular char match one of the
+     *              corresponding switch cases?"
+     * @return - true if char is an int, false otherwise.
+     * @description - See above statement for input
+     */
+    public static boolean hasInt(char input)
+    {
+
+        switch (input)
+        {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return true;
+        } // End switch
+
+        return false;
+    } //
+
+    //***********************************************************************
+
+    /**
+     * @param s1 - the string to be searched
+     * @param c  - the character we want to search s1 for.
+     * @return - the value where the char first appears.
+     * @description - this method searches an input string for a particular
+     * char and returns the corresponding value where the char
+     * first appears.
+     */
+    public static int findInStr(String s1, char c)
+    {
+        for (int i = 0; i < s1.length(); i++)
+        {
+            if (s1.charAt(i) == c)
+            {
+                return i;
+            }
+        }
+        return -1;
+    } // End findInStr
+
+    //***********************************************************************
+
+    /**
+     * @param s1 - the string to be searched
+     * @return - true/ false based on whether c was/ wasn't found in s1.
+     * @description - this method searches an input string for a particular
+     * char and returns true if the value is found, false
+     * otherwise.
+     */
+    public static boolean doesStringContain(String s1, char c)
+    {
+
+        for (int i = 0; i < s1.length(); i++)
+        {
+            if (s1.charAt(i) == c)
+            {
+                return true;
+            }
+        }
+        return false;
+    } // End doesStringContain
+
+    //***********************************************************************
+
+    /**
+     * @param input - a string to be studied.
+     * @return - true/ false based on whether input is an int (0-9).
+     * @description - this method determines if the inputted string matches
+     * one of the switch cases.
+     */
+    public static boolean isNumber(String input)
+    {
+        switch (input)
+        {
+            case "0":
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+                return true;
+        } // End switch
+
+
+        switch (input.charAt(0))
+        {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return true;
+        } // End switch
+
+        return false;
+    } // End isNumber
+
+    //***********************************************************************
+
+    /**
+     * @param input - a char to be studied.
+     * @return - true if letter (a-z), false otherwise.
+     * @description - this method takes a char and returns true/ false on
+     * whether it's a letter (a-z).
+     */
+    public static boolean isLetter(char input)
+    {
+
+        String s1 = Character.toString(input).toLowerCase();
+        switch (s1)
+        {
+            case "a":
+            case "b":
+            case "c":
+            case "d":
+            case "e":
+            case "f":
+            case "g":
+            case "h":
+            case "i":
+            case "j":
+            case "k":
+            case "l":
+            case "m":
+            case "n":
+            case "o":
+            case "p":
+            case "q":
+            case "r":
+            case "s":
+            case "t":
+            case "u":
+            case "v":
+            case "w":
+            case "x":
+            case "y":
+            case "z":
+                return true;
+        } // End switch
+        return false;
+    } // End isLetter
 } // End MuddyTown class
